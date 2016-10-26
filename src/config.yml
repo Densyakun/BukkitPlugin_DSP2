@@ -1,0 +1,30 @@
+ownerUUID: 
+afk-time: 60
+afk-kick: Playerが放置により自動Kickされました
+afk-kick_: 放置により自動Kickされました
+afk-msg: Playerが放置中です
+afk-back-msg: Playerが動きました
+joinmsg: Playerがログインしました
+quitmsg: Playerがログアウトしました
+welcomemsg: 電車君サーバーへようこそ!
+
+traveler-msg: 初めての方は旅人ランクのためブロックの破壊等はできません。住民ランクへ昇格するには登録したい住所地で/rsub [町名レターコード]を実行して下さい。(電鯖町名コードについてはこちらをご覧下さい： URL）
+rsubmit-msg: 住民票を提出しました。受理されるまでお待ち下さい。生活についてはこちらをご覧下さい： URL
+rsubmitted-msg: 住民票は提出済みです。問題があればこちらから報告をお願いします： URL
+raccept-msg: 住民票が受理され、住民へ昇格しました。それでは電車君サーバーをお楽しみ下さい。生活についてはこちらをご覧下さい： URL
+rdismissal-msg: 申し訳ございません。住民票が受理されませんでした。担当： CHARGE メッセージ： MESSAGE
+residents-msg: 住民の方々へお知らせがあります： URL
+rdemote-msg: 住民へ降格されました。
+adminpromote-msg: おめでとうございます。管理者へ昇格しました。管理者に向けて説明があります。こちらをご覧下さい： URL
+admin-msg: 管理者の方々へお知らせがあります： URL
+admindemote-msg: 管理者へ降格されました。
+ownerpromote-msg: おめでとうございます。副鯖主へ昇格しました。
+owner-msg: 副鯖主の方々へお知らせがあります： URL
+
+treasure-chest-world: kyozyuku
+treasure-chest-x: 1181
+treasure-chest-y: 63
+treasure-chest-z: -701
+treasure-chest-items: [APPLE, ARROW, BONE, BOW, CARROT_ITEM, CHAINMAIL_BOOTS, CHAINMAIL_CHESTPLATE, CHAINMAIL_HELMET, CHAINMAIL_LEGGINGS, CLAY_BALL, COAL, COBBLESTONE, DIAMOND_ORE, EGG, EMERALD_ORE, EXP_BOTTLE, FEATHER, FLINT, GLOWSTONE_DUST, GOLD_ORE, IRON_ORE, LAPIS_ORE, LEATHER, PORK, POTATO_ITEM, QUARTZ_ORE, RAW_BEEF, RAW_CHICKEN, RAW_FISH, REDSTONE_ORE, ROTTEN_FLESH, SLIME_BALL, SPIDER_EYE, STICK, STRING, WHEAT, WOOD, WOOD_AXE, WOOD_HOE, WOOD_PICKAXE, WOOD_SPADE, WOOD_SWORD]
+
+news-time: [6000, 12000, 18000]
