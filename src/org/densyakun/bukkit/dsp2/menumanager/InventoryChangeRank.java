@@ -11,8 +11,10 @@ public class InventoryChangeRank extends MenuInventory {
 	public InventoryChangeRank(MenuManager menumanager, UUID uuid, PlayerData playerdata) {
 		super(menumanager, 9, "内部ランクを変更", uuid);
 		this.playerdata = playerdata;
-		setitem(3, Material.GOLD_BLOCK, PlayerRank.Owner.getChatColor() + PlayerRank.Owner.name());
-		setitem(2, Material.IRON_BLOCK, PlayerRank.Admin.getChatColor() + PlayerRank.Admin.name());
+		if (menumanager.main.playermanager.getPlayerData(uuid).getRank() == PlayerRank.Owner) {
+			setitem(3, Material.GOLD_BLOCK, PlayerRank.Owner.getChatColor() + PlayerRank.Owner.name());
+			setitem(2, Material.IRON_BLOCK, PlayerRank.Admin.getChatColor() + PlayerRank.Admin.name());
+		}
 		setitem(1, Material.STONE, PlayerRank.Residents.getChatColor() + PlayerRank.Residents.name());
 		setitem(0, Material.WOOD, PlayerRank.Traveler.getChatColor() + PlayerRank.Traveler.name());
 	}
@@ -34,7 +36,6 @@ public class InventoryChangeRank extends MenuInventory {
 		default:
 			break;
 		}
-		getMenuManager().main.playermanager.UpdatePlayerData(playerdata);
 		e.getWhoClicked().closeInventory();
 		e.getWhoClicked().sendMessage(ChatColor.AQUA + "内部ランクを変更: " + playerdata.getRank().getChatColor() + playerdata.getInternalRank());
 	}

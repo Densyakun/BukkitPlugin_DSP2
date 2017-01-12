@@ -2,6 +2,7 @@ package org.densyakun.bukkit.dsp2.playermanager;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
 import org.densyakun.bukkit.dsp2.Main;
 public class PlayerData {
 	private UUID uuid;
@@ -28,7 +29,8 @@ public class PlayerData {
 		return rank;
 	}
 	public void setRank(PlayerRank rank) {
-		if (!uuid.equals(Main.getMain().playermanager.getOwnerUniqueID())) {
+		Main main = Main.getMain();
+		if (!uuid.equals(main.playermanager.getOwnerUniqueID())) {
 			if (rank == PlayerRank.Owner) {
 				setMetadata("ownerpromotemsg", "");
 				removeMetadata("adminpromotemsg");
@@ -46,8 +48,11 @@ public class PlayerData {
 				}
 			}
 			this.rank = rank;
-			Main main = Main.getMain();
-			main.playermanager.rankmessage(main.getServer().getPlayer(uuid), this);
+			Player player = main.getServer().getPlayer(uuid);
+			if (player != null) {
+				main.playermanager.namereload(player);
+				main.playermanager.rankmessage(player, this);
+			}
 		}
 	}
 	public boolean isHide() {

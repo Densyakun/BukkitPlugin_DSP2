@@ -1,7 +1,9 @@
 name: DSP2
 main: org.densyakun.bukkit.dsp2.Main
-version: 1.002-beta
+version: 1.010-beta
 author: Densyakun
 website: http://densyakuncreate.wiki.fc2.com/
+softdepend: [HubSpawn, iConomy]
 commands:
    dsp:
+   nick:

@@ -20,8 +20,10 @@ public class InventoryPlayer extends MenuInventory {
 		Player player = getMenuManager().main.getServer().getPlayer(uuid);
 		if (player != null) {
 			setitem(1, Material.ENDER_CHEST, ChatColor.AQUA + "プレイヤーのエンダーチェストを開く");
-			setitem(2, Material.FURNACE, ChatColor.AQUA + "プレイヤーの開いているインベントリを開く");
-			setitem(3, Material.CHEST, ChatColor.AQUA + "プレイヤーのインベントリを開く");
+			if (!uuid.equals(player)) {
+				setitem(2, Material.FURNACE, ChatColor.AQUA + "プレイヤーの開いているインベントリを開く");
+				setitem(3, Material.CHEST, ChatColor.AQUA + "プレイヤーのインベントリを開く");
+			}
 			setitem(4, Material.NETHER_BRICK, ChatColor.AQUA + "ロビーに転送");
 			if (menumanager.main.getServer().getPluginManager().getPlugin("MiniGameManager") != null && org.densyakun.bukkit.minigamemanager.Main.getMinigamemanager().getPlayingGame(uuid) != null) {
 				setitem(5, Material.IRON_DOOR, ChatColor.AQUA + "ゲームを強制終了");

@@ -6,10 +6,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,18 +26,24 @@ import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.densyakun.bukkit.dsp2.Main;
 import org.densyakun.bukkit.minigamemanager.Game;
 import org.densyakun.bukkit.minigamemanager.MultiGame;
@@ -86,19 +97,29 @@ public class PlayerManager implements Listener, Runnable {
 						if (CSVFile.isArray(data.get(a).get(2))) {
 							List<String> key = CSVFile.StringtoArray(data.get(a).get(2));
 							List<String> value = CSVFile.StringtoArray(data.get(a).get(3));
-							for (int b = 0; b < key.size(); b++) {
-								if (b <= value.size()) {
-									try {
-										pd.setMetadata(key.get(b), value.get(b));
-									} catch (NumberFormatException e) {
-									}
+							for (int b = 0; b < key.size() && b < value.size(); b++) {
+								try {
+									pd.setMetadata(key.get(b), value.get(b));
+								} catch (NumberFormatException e) {
 								}
 							}
 						}
-						pdata.add(pd);
+						boolean b = true;
+						for (int c = 0; c < pdata.size(); c++) {
+							if (pdata.get(c).getUuid().equals(pd.getUuid())) {
+								b = false;
+								String[] keys = pd.getMetadataKeys();
+								for (int d = 0; d < keys.length; d++) {
+									pdata.get(c).setMetadata(keys[d], pd.getMetadata(keys[d]));
+								}
+								break;
+							}
+						}
+						if (b) {
+							pdata.add(pd);
+						}
 					}
 				}
-				data = null;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -155,12 +176,10 @@ public class PlayerManager implements Listener, Runnable {
 									player.kickPlayer(afkkick_);
 									afk.remove(a);
 									continue;
-								} else {
-									if (afktime == afk.get(a).time) {
-										Player[] players = main.getServer().getOnlinePlayers().toArray(new Player[0]);
-										for (int b = 0; b < players.length; b++) {
-											players[b].sendMessage(afkmsg.replaceAll("Player", player.getDisplayName()));
-										}
+								} else if (afktime == afk.get(a).time) {
+									Player[] players = main.getServer().getOnlinePlayers().toArray(new Player[0]);
+									for (int b = 0; b < players.length; b++) {
+										players[b].sendMessage(afkmsg.replaceAll("Player", player.getDisplayName()));
 									}
 								}
 							}
@@ -251,11 +270,9 @@ public class PlayerManager implements Listener, Runnable {
 			line.add(CSVFile.ArrayToString(keys));
 			line.add(CSVFile.ArrayToString(values));
 			data.add(line);
-			line = null;
 		}
 		try {
 			datacsv.AllWrite(data);
-			data = null;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -273,7 +290,7 @@ public class PlayerManager implements Listener, Runnable {
 		pdata.add(data);
 		return data;
 	}
-	public void UpdatePlayerData(PlayerData data) {
+	/*public void UpdatePlayerData(PlayerData data) {
 		boolean a = true;
 		for (int b = 0; b < pdata.size(); b++) {
 			if (pdata.get(b).getUuid().equals(data.getRank())) {
@@ -289,7 +306,7 @@ public class PlayerManager implements Listener, Runnable {
 		if (player != null) {
 			namereload(player);
 		}
-	}
+	}*/
 	public void afkupdate(UUID uuid) {
 		for (int a = 0; a < afk.size(); a++) {
 			if (afk.get(a).getUniqueId().equals(uuid)) {
@@ -375,6 +392,7 @@ public class PlayerManager implements Listener, Runnable {
 		case Residents:
 			name += data.getRank().getChatColor();
 			player.setGameMode(GameMode.SURVIVAL);
+			break;
 		default:
 			player.setGameMode(GameMode.ADVENTURE);
 			break;
@@ -390,7 +408,12 @@ public class PlayerManager implements Listener, Runnable {
 			}
 			name += ChatColor.BOLD;
 		}
-		name += player.getName() + ChatColor.RESET;
+		String nick = data.getMetadata("nick");
+		if (nick == null) {
+			name += player.getName() + ChatColor.RESET;
+		} else {
+			name += nick + ChatColor.RESET;
+		}
 		String tabname = name.substring(0, name.length() <= 16 ? name.length() : 16);
 		player.setDisplayName(name);
 		player.setPlayerListName(tabname.charAt(tabname.length() - 1) == '§' ? tabname.substring(0, tabname.length() - 1) : tabname);
@@ -432,8 +455,9 @@ public class PlayerManager implements Listener, Runnable {
 	public void PlayerJoin(PlayerJoinEvent e) {
 		namereload(e.getPlayer());
 		PlayerData data = getPlayerData(e.getPlayer().getUniqueId());
-		data.setMetadata("JoinHist_" + new Date().getTime(), CSVFile.ArrayToString(new String[]{e.getPlayer().getAddress().getHostName(), e.getPlayer().getName()}));
-		if (!getPlayerData(e.getPlayer().getUniqueId()).getRank().isAdmin() && whitemode) {
+		//data.setMetadata("JoinHist_" + new Date().getTime(), CSVFile.ArrayToString(new String[]{e.getPlayer().getAddress().getHostName(), e.getPlayer().getName()}));
+		System.out.println("JoinHist: " + e.getPlayer().getName() + "_" + e.getPlayer().getAddress().getHostName());
+		if (!data.getRank().isAdmin() && whitemode) {
 			e.getPlayer().kickPlayer("ホワイトモードです(管理者専用)");
 			main.traysend(main.getServer().getServerName(), e.getPlayer().getDisplayName() + "がホワイトモードによりキック", MessageType.INFO);
 			e.setJoinMessage(null);
@@ -505,9 +529,9 @@ public class PlayerManager implements Listener, Runnable {
 		e.getPlayer().leaveVehicle();
 		main.traysend(main.getServer().getServerName(), e.getPlayer().getDisplayName() + "がログアウト:\n" + e.getQuitMessage(), MessageType.INFO);
 		e.setQuitMessage(quitmsg.replaceAll("Player", e.getPlayer().getDisplayName()));
-		PlayerData data = getPlayerData(e.getPlayer().getUniqueId());
-		data.setMetadata("QuitPos_" + new Date().getTime(), e.getPlayer().getLocation().toString());
-		System.out.println("QuitPos: " + e.getPlayer() + "_" + e.getPlayer().getLocation());
+		/*PlayerData data = getPlayerData(e.getPlayer().getUniqueId());
+		data.setMetadata("QuitPos_" + new Date().getTime(), e.getPlayer().getLocation().toString());*/
+		System.out.println("QuitPos: " + e.getPlayer().getName() + "_" + e.getPlayer().getLocation());
 	}
 	@EventHandler
 	public void PlayerRespawn(PlayerRespawnEvent e) {
@@ -547,13 +571,13 @@ public class PlayerManager implements Listener, Runnable {
 	}
 	@EventHandler
 	public void EntityDamageByBlock(EntityDamageByBlockEvent e) {
-		if (getPlayerData(e.getEntity().getUniqueId()).getRank() == PlayerRank.Traveler) {
+		if (e.getEntity() instanceof Player && getPlayerData(e.getEntity().getUniqueId()).getRank() == PlayerRank.Traveler) {
 			e.setCancelled(true);
 		}
 	}
 	@EventHandler
 	public void EntityDamageByEntity(EntityDamageByEntityEvent e) {
-		if (getPlayerData(e.getEntity().getUniqueId()).getRank() == PlayerRank.Traveler || getPlayerData(e.getDamager().getUniqueId()).getRank() == PlayerRank.Traveler) {
+		if (e.getEntity() instanceof Player && getPlayerData(e.getEntity().getUniqueId()).getRank() == PlayerRank.Traveler || e.getDamager() instanceof Player && getPlayerData(e.getDamager().getUniqueId()).getRank() == PlayerRank.Traveler) {
 			e.setCancelled(true);
 		}
 	}
@@ -568,21 +592,17 @@ public class PlayerManager implements Listener, Runnable {
 		try {
 			meta = Integer.valueOf(data.getMetadata("death"));
 		} catch (NumberFormatException x) {
-			x.printStackTrace();
 		}
 		data.setMetadata("death", String.valueOf(meta + 1));
 		if (e.getEntity().getKiller() != null) {
-			UpdatePlayerData(data);
 			data = getPlayerData(e.getEntity().getKiller().getUniqueId());
 			meta = 0;
 			try {
 				meta = Integer.valueOf(data.getMetadata("kill"));
 			} catch (NumberFormatException x) {
-				x.printStackTrace();
 			}
 			data.setMetadata("kill", String.valueOf(meta + 1));
 		}
-		UpdatePlayerData(data);
 		e.setKeepInventory(true);
 		e.setKeepLevel(true);
 	}
@@ -607,6 +627,8 @@ public class PlayerManager implements Listener, Runnable {
 			if (game != null && game instanceof MultiGame && game.time < ((MultiGame) game).entrytime) {
 				e.setCancelled(true);
 			}
+		} else if (e.getPlayer().getVehicle() instanceof Minecart) {
+			e.setCancelled(true);
 		}
 	}
 	@EventHandler
@@ -635,6 +657,8 @@ public class PlayerManager implements Listener, Runnable {
 			if (game != null && game instanceof MultiGame && game.time < ((MultiGame) game).entrytime) {
 				e.setCancelled(true);
 			}
+		} else if (e.getPlayer().getVehicle() instanceof Minecart) {
+			e.setCancelled(true);
 		}
 	}
 	@EventHandler
@@ -660,6 +684,13 @@ public class PlayerManager implements Listener, Runnable {
 		afkupdate(e.getPlayer().getUniqueId());
 		main.traysend(main.getServer().getServerName(), e.getPlayer().getDisplayName() + " Cmd:" + e.getMessage(), MessageType.INFO);
 	}
+	@EventHandler
+	public void InventoryOpen(InventoryOpenEvent e) {
+		PlayerData data =getPlayerData(e.getPlayer().getUniqueId());
+		if (data.getRank() == PlayerRank.Traveler) {
+			e.setCancelled(true);
+		}
+	}
 	/*@Override
 	public void spawn(org.densyakun.bukkit.hubspawn.Main main, Player player) {
 		/*Game game = main.gamemanager.getPlayingGame(player.getUniqueId());
@@ -672,4 +703,89 @@ public class PlayerManager implements Listener, Runnable {
 		}
 		firework = 5;
 	}*/
+	@EventHandler
+	public void VehicleEnter(VehicleEnterEvent e) {
+		if (e.getVehicle().getType() == EntityType.MINECART && e.getEntered() instanceof Player) {
+			((Player) e.getEntered()).sendMessage(ChatColor.GREEN + "手動運転の方法:\n左クリック: ブレーキ(連打)\n右クリック: 加速(ブロックを連打・移動しているときのみ)\n手動運転区間について:\nhttp://densyakunserver.dip.jp/index.php/%E9%89%84%E9%81%93%E9%81%8B%E8%BB%A2%E6%96%B9%E5%BC%8F");
+		}
+	}
+	@EventHandler
+	public void PlayerInteract(PlayerInteractEvent e) {
+		if ((e.getPlayer().getVehicle() != null) && (e.getPlayer().getVehicle() instanceof Minecart)) {
+			Vector a = e.getPlayer().getVehicle().getVelocity();
+			switch (e.getAction()) {
+			case LEFT_CLICK_AIR:
+			case LEFT_CLICK_BLOCK:
+				if (a.getX() < 0) {
+					a.setX(a.getX() + 0.015);
+				} else if (0 < a.getX()) {
+					a.setX(a.getX() - 0.015);
+				}
+				if (a.getY() < 0) {
+					a.setY(a.getY() + 0.015);
+				} else if (0 < a.getY()) {
+					a.setY(a.getY() - 0.015);
+				}
+				if (a.getZ() < 0) {
+					a.setZ(a.getZ() + 0.015);
+				} else if (0 < a.getZ()) {
+					a.setZ(a.getZ() - 0.015);
+				}
+				e.getPlayer().getVehicle().getWorld().playSound(e.getPlayer().getVehicle().getLocation(), Sound.BLAZE_HIT, 1, 0);
+				break;
+			case RIGHT_CLICK_AIR:
+			case RIGHT_CLICK_BLOCK:
+				if (a.getX() < 0) {
+					a.setX(a.getX() - 0.015);
+				} else if (0 < a.getX()) {
+					a.setX(a.getX() + 0.015);
+				}
+				if (a.getY() < 0) {
+					a.setY(a.getY() - 0.015);
+				} else if (0 < a.getY()) {
+					a.setY(a.getY() + 0.015);
+				}
+				if (a.getZ() < 0) {
+					a.setZ(a.getZ() - 0.015);
+				} else if (0 < a.getZ()) {
+					a.setZ(a.getZ() + 0.015);
+				}
+				e.getPlayer().getVehicle().getWorld().playSound(e.getPlayer().getVehicle().getLocation(), Sound.BLAZE_HIT, 1, 0);
+				break;
+			default:
+				break;
+			}
+			e.getPlayer().getVehicle().setVelocity(a);
+			a = null;
+		}
+	}
+	@EventHandler
+	public void EntityDeath(EntityDeathEvent e) {
+		switch (e.getEntityType()) {
+		case BLAZE:
+		case CAVE_SPIDER:
+		case CREEPER:
+		case ENDERMAN:
+		case ENDER_DRAGON:
+		case GHAST:
+		case GIANT:
+		case MAGMA_CUBE:
+		case PIG_ZOMBIE:
+		case SILVERFISH:
+		case SKELETON:
+		case SLIME:
+		case SNOWMAN:
+		case SPIDER:
+		case WITCH:
+		case WITHER:
+		case WITHER_SKULL:
+		case ZOMBIE:
+			if (e.getEntity().getKiller() != null && new Random().nextInt(128) == 0) {
+				e.getEntity().getWorld().dropItem(e.getEntity().getLocation(), new ItemStack(Material.DIAMOND));
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }

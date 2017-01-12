@@ -9,12 +9,15 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.densyakun.bukkit.dsp2.menumanager.MenuManager;
 import org.densyakun.bukkit.dsp2.playermanager.PlayerData;
@@ -31,11 +34,11 @@ public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		main = this;
+		load();
 		playermanager = new PlayerManager(this);
 		menumanager = new MenuManager(this);
 		treasurechest = new TreasureChest(this);
 		//citymanager = new CityManager(this);
-		load();
 		getServer().getPluginManager().registerEvents(this, this);
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + getName() + ": 有効");
 	}
@@ -148,7 +151,7 @@ public class Main extends JavaPlugin implements Listener {
 							} else {
 								
 							}
-						} else if (args[2].equalsIgnoreCase("cmdperform") || args[2].equalsIgnoreCase("cmdperf")) {
+						} else if (args[2].equalsIgnoreCase("perfcmd")) {
 							if (args.length < 5) {
 								if (sender instanceof ConsoleCommandSender) {
 									getServer().getConsoleSender().sendMessage(ChatColor.RED + "パラメーターが足りません");
@@ -208,12 +211,13 @@ public class Main extends JavaPlugin implements Listener {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("rsub")) {
+				/*
 				if (sender instanceof HumanEntity) {
 					PlayerData playerdata = playermanager.getPlayerData(((HumanEntity) sender).getUniqueId());
 					String rsub = playerdata.getMetadata("rsub");
 					if (rsub == null) {
 						
-						sender.sendMessage(ChatColor.RED + "提出しました");
+						sender.sendMessage(ChatColor.AQUA + "提出しました");
 					} else {
 						sender.sendMessage(ChatColor.RED + "すでに提出しています");
 					}
@@ -224,11 +228,33 @@ public class Main extends JavaPlugin implements Listener {
 						sender.sendMessage(ChatColor.RED + "このコマンドはプレイヤーのみ実行できます");
 					}
 				}
+				*/
 			} else {
 				if (sender instanceof ConsoleCommandSender) {
 					getServer().getConsoleSender().sendMessage(ChatColor.RED + "パラメーターが間違っています");
 				} else {
 					sender.sendMessage(ChatColor.RED + "パラメーターが間違っています");
+				}
+			}
+		} else if (label.equalsIgnoreCase("nick")) {
+			if (args.length == 0) {
+				if (sender instanceof ConsoleCommandSender) {
+					getServer().getConsoleSender().sendMessage(ChatColor.RED + "パラメーターが必要です");
+				} else {
+					sender.sendMessage(ChatColor.RED + "パラメーターが必要です");
+				}
+			} else {
+				if (sender instanceof Player) {
+					PlayerData playerdata = playermanager.getPlayerData(((HumanEntity) sender).getUniqueId());
+					playerdata.setMetadata("nick", args[0].replace('[', ' ').replace(',', ' ').replace(']', ' ').trim());
+					playermanager.namereload((Player) sender);
+					sender.sendMessage(ChatColor.AQUA + "ニックネームを変更しました");
+				} else {
+					if (sender instanceof ConsoleCommandSender) {
+						getServer().getConsoleSender().sendMessage(ChatColor.RED + "このコマンドはプレイヤーのみ実行できます");
+					} else {
+						sender.sendMessage(ChatColor.RED + "このコマンドはプレイヤーのみ実行できます");
+					}
 				}
 			}
 		}
@@ -248,5 +274,11 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	public void traysend(String title, String msg, MessageType type) {
 		tray.displayMessage(title, msg, type);
+	}
+	@EventHandler
+	public void ItemDespawn(ItemDespawnEvent e) {
+		if (e.getEntity().getItemStack().getType() != Material.EGG) {
+			e.setCancelled(true);
+		}
 	}
 }
