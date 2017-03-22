@@ -1,4 +1,5 @@
 package org.densyakun.bukkit.dsp2.menumanager;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -9,38 +10,48 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.densyakun.bukkit.dsp2.Main;
+
 public abstract class MenuInventory {
 	private MenuManager menumanager;
 	private int size;
 	private String name;
 	private Inventory inv;
 	private UUID uuid;
+
 	public MenuInventory(MenuManager menumanager, int size, String name, UUID uuid) {
 		this.menumanager = menumanager;
 		this.size = size;
 		this.name = name;
-		inv = menumanager.main.getServer().createInventory(null, size, name);
+		inv = Main.main.getServer().createInventory(null, size, name);
 		this.uuid = uuid;
 		menumanager.mis.add(this);
 	}
+
 	public MenuManager getMenuManager() {
 		return menumanager;
 	}
+
 	public int getSize() {
 		return size;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public Inventory getInventory() {
 		return inv;
 	}
+
 	public UUID getUuid() {
 		return uuid;
 	}
+
 	public ItemStack setitem(int loc, Material mat, String name) {
 		return setitem(loc, mat, name, null);
 	}
+
 	public ItemStack setitem(int loc, Material mat, String name, List<String> lore) {
 		if (loc < 0) {
 			loc = 0;
@@ -60,10 +71,13 @@ public abstract class MenuInventory {
 		inv.setItem(loc, idi);
 		return idi;
 	}
+
 	public void Click(InventoryClickEvent e) {
 	}
+
 	public void Close(InventoryCloseEvent e) {
 	}
+
 	public void Open(InventoryOpenEvent e) {
 	}
 }

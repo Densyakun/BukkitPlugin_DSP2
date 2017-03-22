@@ -1,6 +1,8 @@
 package org.densyakun.bukkit.dsp2.playermanager;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+
 public enum PlayerRank {
 	Owner, Admin, Residents, Traveler;
 	public Color getColor() {
@@ -13,6 +15,7 @@ public enum PlayerRank {
 			return Color.WHITE;
 		}
 	}
+
 	public ChatColor getChatColor() {
 		switch (this) {
 		case Owner:
@@ -23,6 +26,7 @@ public enum PlayerRank {
 			return ChatColor.WHITE;
 		}
 	}
+
 	public boolean isAdmin() {
 		switch (this) {
 		case Owner:
@@ -32,6 +36,7 @@ public enum PlayerRank {
 			return false;
 		}
 	}
+
 	public static PlayerRank getDefault() {
 		return Traveler;
 	}

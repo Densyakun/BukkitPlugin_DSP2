@@ -1,4 +1,5 @@
 package org.densyakun.bukkit.dsp2.menumanager;
+
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -6,17 +7,20 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 public class InventoryKeyboard extends MenuInventory {
 	String str = new String();
 	MenuKeyboardEnter enter;
 	int type = 0;
 	int mode = 0;
+
 	public InventoryKeyboard(MenuManager menumanager, String name, UUID uuid, MenuKeyboardEnter enter, int type) {
 		super(menumanager, 54, name, uuid);
 		this.enter = enter;
 		this.type = type;
 		reload();
 	}
+
 	public void reload() {
 		for (int a = 1; a < 54; a++) {
 			getInventory().clear(a);
@@ -561,6 +565,7 @@ public class InventoryKeyboard extends MenuInventory {
 		getInventory().setItem(50, item0);
 		item0 = null;
 	}
+
 	@Override
 	public void Click(InventoryClickEvent e) {
 		switch (e.getRawSlot()) {

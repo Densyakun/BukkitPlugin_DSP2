@@ -1,4 +1,5 @@
 package org.densyakun.bukkit.dsp2.menumanager;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,16 +9,17 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.densyakun.bukkit.dsp2.Main;
 import org.densyakun.bukkit.dsp2.playermanager.PlayerData;
-import org.densyakun.bukkit.minigamemanager.Game;
-import org.densyakun.bukkit.minigamemanager.MultiGame;
+
 public class InventoryPlayer extends MenuInventory {
 	UUID uuid;
+
 	public InventoryPlayer(MenuManager menumanager, UUID uuid) {
 		super(menumanager, 9, "管理者機能 > プレイヤーの情報", uuid);
 		this.uuid = uuid;
 		setitem(0, Material.BEACON, ChatColor.RED + "再読み込み");
-		Player player = getMenuManager().main.getServer().getPlayer(uuid);
+		Player player = Main.main.getServer().getPlayer(uuid);
 		if (player != null) {
 			setitem(1, Material.ENDER_CHEST, ChatColor.AQUA + "プレイヤーのエンダーチェストを開く");
 			if (!uuid.equals(player)) {
@@ -25,9 +27,6 @@ public class InventoryPlayer extends MenuInventory {
 				setitem(3, Material.CHEST, ChatColor.AQUA + "プレイヤーのインベントリを開く");
 			}
 			setitem(4, Material.NETHER_BRICK, ChatColor.AQUA + "ロビーに転送");
-			if (menumanager.main.getServer().getPluginManager().getPlugin("MiniGameManager") != null && org.densyakun.bukkit.minigamemanager.Main.getMinigamemanager().getPlayingGame(uuid) != null) {
-				setitem(5, Material.IRON_DOOR, ChatColor.AQUA + "ゲームを強制終了");
-			}
 			List<String> lore = new ArrayList<String>();
 			lore.add(ChatColor.GOLD.toString() + ChatColor.BOLD + "クリックでUUID表示");
 			lore.add("Name:" + player.getName());
@@ -45,8 +44,8 @@ public class InventoryPlayer extends MenuInventory {
 			}
 			setitem(7, Material.PAPER, ChatColor.GREEN + "プレイヤーの情報(1/2)", lore);
 		}
-		PlayerData data = menumanager.main.playermanager.getPlayerData(uuid);
-		if (!data.getUuid().equals(menumanager.main.playermanager.getOwnerUniqueID())) { 
+		PlayerData data = Main.main.playermanager.getPlayerData(uuid);
+		if (!data.getUuid().equals(Main.main.playermanager.getOwnerUniqueID())) {
 			setitem(6, Material.GOLDEN_APPLE, ChatColor.AQUA + "内部ランクを変更");
 		}
 		List<String> lore = new ArrayList<String>();
@@ -57,17 +56,12 @@ public class InventoryPlayer extends MenuInventory {
 		for (int a = 0; a < keys.length; a++) {
 			lore.add(keys[a] + ": " + data.getMetadata(keys[a]));
 		}
-		if (getMenuManager().main.getServer().getPluginManager().getPlugin("MiniGameManager") != null) {
-			Game game = org.densyakun.bukkit.minigamemanager.Main.getMinigamemanager().getPlayingGame(uuid);
-			if (game != null) {
-				lore.add("PlayingGame: " + game.name);
-			}
-		}
 		setitem(8, Material.PAPER, ChatColor.GREEN + "プレイヤーの情報(2/2)", lore);
 	}
+
 	@Override
 	public void Click(InventoryClickEvent e) {
-		Player player = getMenuManager().main.getServer().getPlayer(uuid);
+		Player player = Main.main.getServer().getPlayer(uuid);
 		switch (e.getRawSlot()) {
 		case 0:
 			e.getWhoClicked().openInventory(new InventoryPlayer(getMenuManager(), uuid).getInventory());
@@ -78,7 +72,8 @@ public class InventoryPlayer extends MenuInventory {
 			}
 			break;
 		case 2:
-			if (player != null && player.getOpenInventory().getType() != InventoryType.CREATIVE && player.getOpenInventory().getType() != InventoryType.PLAYER) {
+			if (player != null && player.getOpenInventory().getType() != InventoryType.CREATIVE
+					&& player.getOpenInventory().getType() != InventoryType.PLAYER) {
 				e.getWhoClicked().openInventory(player.getOpenInventory().getTopInventory());
 			}
 			break;
@@ -89,7 +84,7 @@ public class InventoryPlayer extends MenuInventory {
 			break;
 		case 4:
 			if (player != null) {
-				if (getMenuManager().main.getServer().getPluginManager().getPlugin("HubSpawn") != null) {
+				if (Main.main.getServer().getPluginManager().getPlugin("HubSpawn") != null) {
 					org.densyakun.bukkit.hubspawn.Main.hubspawn.spawn(player, 0);
 					e.getWhoClicked().openInventory(new InventoryPlayer(getMenuManager(), uuid).getInventory());
 				} else {
@@ -105,21 +100,9 @@ public class InventoryPlayer extends MenuInventory {
 				}
 			}
 			break;
-		case 5:
-			if (getMenuManager().main.getServer().getPluginManager().getPlugin("MiniGameManager") != null) {
-				Game game = org.densyakun.bukkit.minigamemanager.Main.getMinigamemanager().getPlayingGame(uuid);
-				if (game != null) {
-					if (game instanceof MultiGame) {
-						((MultiGame) game).removePlayer(player.getUniqueId());
-					} else {
-						game.stop();
-					}
-					e.getWhoClicked().openInventory(new InventoryPlayer(getMenuManager(), uuid).getInventory());
-				}
-			}
-			break;
 		case 6:
-			e.getWhoClicked().openInventory(new InventoryChangeRank(getMenuManager(), uuid, getMenuManager().main.playermanager.getPlayerData(uuid)).getInventory());
+			e.getWhoClicked().openInventory(new InventoryChangeRank(getMenuManager(), uuid,
+					Main.main.playermanager.getPlayerData(uuid)).getInventory());
 			break;
 		case 7:
 		case 8:
