@@ -17,8 +17,8 @@ public class InventoryChangeRank extends MenuInventory {
 		this.playerdata = playerdata;
 		if (Main.main.playermanager.getPlayerData(uuid).getRank() == PlayerRank.Owner) {
 			setitem(3, Material.GOLD_BLOCK, PlayerRank.Owner.getChatColor() + PlayerRank.Owner.name());
-			setitem(2, Material.IRON_BLOCK, PlayerRank.Admin.getChatColor() + PlayerRank.Admin.name());
 		}
+		setitem(2, Material.IRON_BLOCK, PlayerRank.Admin.getChatColor() + PlayerRank.Admin.name());
 		setitem(1, Material.STONE, PlayerRank.Residents.getChatColor() + PlayerRank.Residents.name());
 		setitem(0, Material.WOOD, PlayerRank.Traveler.getChatColor() + PlayerRank.Traveler.name());
 	}
